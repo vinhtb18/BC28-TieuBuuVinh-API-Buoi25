@@ -110,14 +110,85 @@ window.xoaProduct = (idProductClick) => {
 
 
 }
-// document.getElementById('render-table').addEventListener('click', function (event) {
-//     let type = event.target.getAttribute('data-type');
-//     let idProduct = event.target.getAttribute('data-id')
-//     if (!idProduct) return
-//     if (type === 'delete') {
-//         xoaProduct(idProduct)
-//     }
-//     if (type === 'update') {
-//         // call function update here
-//     }
-// })
+
+/*----------Phương thức sửa---------*/
+
+window.suaProduct = (idProductClick) => {
+    var promise = axios({
+        url: 'http://svcy.myclass.vn/api/Product/GetById/' + idProductClick,
+        method: 'GET'
+    });
+
+    //Xử lý thành công
+    promise.then(function (result) {
+        let productChange = result.data;
+        console.log(productChange);
+        //Load thông tin sinh viên lên giao diện
+        let arrInput = document.querySelectorAll('.container input, .container select');
+        console.log(arrInput);
+
+        for (let input of arrInput) {
+            let { id } = input;
+            input.value = productChange[id];
+        }
+    })
+    //Xử lý thất bại
+    promise.catch(function (error) {
+
+    })
+}
+
+/*-----------Phương thức cập nhật--------------*/
+document.querySelector('#btnCapNhatProduct').onclick = function () {
+    //Lấy dữ liệu từ người dùng nhập ở giao diện => gửi về api
+    let pr = new Product();
+    let arrInput = document.querySelectorAll('.container input, .container select');
+    console.log(arrInput);
+
+    for (let input of arrInput) {
+        let { id, value } = input;
+        pr[id] = value;
+    }
+
+
+    //Gọi api 
+    var promise = axios({
+        url: 'http://svcy.myclass.vn/api/Product/UpdateProduct/' + pr.id,
+        method: 'PUT',
+        data: pr
+    });
+
+    promise.then(function (result) {
+        console.log(result.data);
+        //Gọi lại api load table
+        getProductApi();
+    });
+
+    promise.then(function (err) {
+        console.log(err)
+    })
+
+}
+
+/*----------Phương thức tìm kiếm theo tên----------*/
+document.querySelector('#btnTimKiemTheoTen').onclick = function () {
+    let searchName = document.querySelector('#searchName').value;
+    console.log(searchName);
+
+    //Gọi api 
+    var promise = axios({
+        url: 'http://svcy.myclass.vn/api/Product/SearchByName?name=' + searchName,
+        method: 'GET',
+    });
+
+    promise.then(function (result) {
+        console.log(result.data);
+        //load table
+        renderProduct(result.data);
+    });
+
+    promise.then(function (err) {
+        console.log(err)
+    })
+
+}
